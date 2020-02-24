@@ -3,7 +3,6 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.exception.*;
 import ru.javawebinar.basejava.model.Resume;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,23 +19,8 @@ public abstract class AbstractArrayStorageTest {
         this.storage = storage;
     }
 
-    /*
-      Мне кажется, что в этой секции нельзя подготавливать данные с помощью метода который мы собираеся тестировать.
-      Она нужна для первоначальной подготовки данных, моков, инициализации каких-то зависимостей.
-      Если готовить данные тем методом, который будет тестироваться, то дальнейшую проверку нельзя считать честной.
-      Это примерно как реализовать калькулятор, на нем выполнить операцию сложения и результат этой операции считать
-      эталонным значением в тестах.
-      Плюс такая подготовка усложняет разработку тестов, зачем для всех кейсов иметь именно три созданных резюме?
-      Причем созданных методом, который еще не протестирован.
-      В общем сейчас оставляю только очистку, после проверки дз скорее всего придется вернуть
-    */
     @Before
-    public void setUp() throws Exception {
-        storage.clear();
-    }
-
-    @After
-    public void tearDown() throws Exception {
+    public void setUp() {
         storage.clear();
     }
 
@@ -45,12 +29,6 @@ public abstract class AbstractArrayStorageTest {
     public void save() {
         storage.save(RESUME);
         assertEquals(RESUME, storage.get(UUID));
-        assertEquals(UUID, storage.get(UUID).toString());
-    }
-
-    @Test
-    public void saveRandomUUID() {
-        storage.save(new Resume());
         assertEquals(1, storage.size());
     }
 
@@ -83,7 +61,7 @@ public abstract class AbstractArrayStorageTest {
 
     @Test(expected = NotExistStorageException.class)
     public void deleteNotExist() {
-        storage.delete("test");
+        storage.delete(UUID);
     }
 
     // Update
@@ -92,7 +70,6 @@ public abstract class AbstractArrayStorageTest {
         storage.save(RESUME);
         storage.update(RESUME);
         assertEquals(RESUME, storage.get(UUID));
-        assertEquals(UUID, storage.get(UUID).toString());
     }
 
     @Test(expected = NotExistStorageException.class)
@@ -125,27 +102,25 @@ public abstract class AbstractArrayStorageTest {
     public void get() {
         storage.save(RESUME);
         assertEquals(RESUME, storage.get(UUID));
-        assertEquals(UUID, storage.get(UUID).toString());
     }
 
     @Test(expected = NotExistStorageException.class)
     public void getNotExist() {
-        storage.get("test");
+        storage.get(UUID);
     }
 
     // getAll
     @Test
     public void getAll() {
-        String[] resume = {"r1", "r2", "r3", "r4"};
-        for (int i = 0; i < resume.length; i++) {
-            storage.save(new Resume(resume[i]));
+        String[] uuids = {"r1", "r2", "r3", "r4"};
+        for (int i = 0; i < uuids.length; i++) {
+            storage.save(new Resume(uuids[i]));
             assertEquals(i + 1, storage.getAll().length);
         }
 
-        Resume[] arrayResume = storage.getAll();
-        for (int i = 0; i < resume.length; i++) {
-            assertEquals(new Resume(resume[i]), arrayResume[i]);
-            assertEquals(resume[i], arrayResume[i].toString());
+        Resume[] resumes = storage.getAll();
+        for (int i = 0; i < uuids.length; i++) {
+            assertEquals(new Resume(uuids[i]), resumes[i]);
         }
     }
 }
